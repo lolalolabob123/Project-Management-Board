@@ -12,7 +12,7 @@ export default function Column({
 }: ColumnProps) {
     return (
         <div className="bg-white border border-gray-200 rounded-x1 p-4 w-80 shadow-sm">
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
+            <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4">
                 {title}
             </h2>
 

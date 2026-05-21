@@ -7,8 +7,16 @@ interface TaskCardProps {
 export default function TaskCard({
     task,
 }: TaskCardProps) {
+    let priorityStyles = ""
+    if (task.priority === "high") {
+        priorityStyles = "bg-red-100 text-red-700";
+    } else if (task.priority === "medium") {
+        priorityStyles = "bg-yellow-100 text-yellow-700"
+    } else {
+        priorityStyles = "bg-green-100 text-green-700"
+    }
     return (
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition cursor-pointer">
             <h3 className="font-medium text-gray-900">
                 {task.title}
             </h3>
@@ -17,9 +25,9 @@ export default function TaskCard({
                 {task.description}
             </p>
 
-            <p className="inline-block mt-3 text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+            <span className={`inline-block mt-3 text-xs px-2 py-1 rounded-full ${priorityStyles}`}>
                 {task.priority}
-            </p>
+            </span>
         </div>
     )
 }

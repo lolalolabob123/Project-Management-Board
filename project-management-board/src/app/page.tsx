@@ -8,8 +8,13 @@ import { useState } from "react";
 import TaskModal from "@/components/ui/TaskModal";
 
 export default function Home() {
-  const board = mockBoard;
+  const [board, setBoard] = useState(mockBoard);
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  function handleCreateTask(task: any) {
+    console.log(task)
+  }
+
   return (
     <main className="h-screen flex flex-col bg-gray-50">
       <Navbar />
@@ -36,6 +41,7 @@ export default function Home() {
           <TaskModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
+            onCreateTask={handleCreateTask}
           />
         </div>
       </div>
