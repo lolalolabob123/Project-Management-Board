@@ -14,6 +14,11 @@ export default function TaskModal({ isOpen, onClose, onCreateTask }: TaskModalPr
   const [priority, setPriority] = useState("low")
 
   function handleCreateTask() {
+
+    if (!title.trim()) {
+      return
+    }
+
     const newTask = {
       id: crypto.randomUUID(),
       title,
@@ -22,6 +27,11 @@ export default function TaskModal({ isOpen, onClose, onCreateTask }: TaskModalPr
     }
 
     onCreateTask(newTask)
+
+    setTitle("")
+    setDescription("")
+    setPriority("low")
+
     onClose();
   }
   return (
@@ -32,7 +42,7 @@ export default function TaskModal({ isOpen, onClose, onCreateTask }: TaskModalPr
 
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-semibold text-gray-900">
             Add New Task
           </h2>
 
@@ -49,7 +59,7 @@ export default function TaskModal({ isOpen, onClose, onCreateTask }: TaskModalPr
             <input
               value={title}
               onChange={((e) => setTitle(e.target.value))}
-              className="w-full border rounded p-2 mt-1"
+              className="w-full border rounded p-2 mt-1 text-gray-500"
               placeholder="Task title"
             />
           </div>
@@ -59,7 +69,7 @@ export default function TaskModal({ isOpen, onClose, onCreateTask }: TaskModalPr
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full border rounded p-2 mt-1"
+              className="w-full border rounded p-2 mt-1 text-gray-500"
               placeholder="Task description"
             />
           </div>
@@ -69,7 +79,7 @@ export default function TaskModal({ isOpen, onClose, onCreateTask }: TaskModalPr
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="w-full border rounded p-2 mt-1">
+              className="w-full border rounded p-2 mt-1 text-gray-500">
               <option value="low">Low</option>
               <option value="medium">Medium</option>
               <option value="high">High</option>
@@ -89,7 +99,8 @@ export default function TaskModal({ isOpen, onClose, onCreateTask }: TaskModalPr
 
           <button
             onClick={handleCreateTask}
-            className="px-4 py-2 bg-blue-600 text-white rounded"
+            disabled={!title.trim()}
+            className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
           >
             Create
           </button>

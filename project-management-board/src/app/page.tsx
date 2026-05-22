@@ -12,7 +12,35 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   function handleCreateTask(task: any) {
-    console.log(task)
+    const updatedColumns = board.columns.map((column) => {
+      if (column.id === "todo") {
+        return {
+          ...column,
+          tasks: [...column.tasks, task],
+        }
+      }
+
+      return column
+    })
+    setBoard({
+      ...board,
+      columns: updatedColumns,
+    })
+  }
+
+  function handleDeleteTask(taskId: string) {
+    const updatedColumns = board.columns.map((column) => {
+      return {
+        ...column,
+        tasks: column.tasks.filter(
+          (task) => task.id !== taskId
+        ),
+      }
+    })
+    setBoard({
+      ...board,
+      columns: updatedColumns,
+    })
   }
 
   return (
@@ -34,6 +62,7 @@ export default function Home() {
               key={column.id}
               title={column.title}
               tasks={column.tasks}
+              onDeleteTask={handleDeleteTask}
             />
           ))}
           </div>

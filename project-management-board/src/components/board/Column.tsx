@@ -4,11 +4,13 @@ import { Task } from "@/types/task";
 interface ColumnProps {
     title: string;
     tasks: Task[];
+    onDeleteTask: (taskId: string) => void;
 }
 
 export default function Column({
     title,
     tasks,
+    onDeleteTask
 }: ColumnProps) {
     return (
         <div className="bg-white border border-gray-200 rounded-x1 p-4 w-80 shadow-sm">
@@ -20,7 +22,9 @@ export default function Column({
                 {tasks.map((task) => (
                     <TaskCard
                     key={task.id}
-                    task={task}/>
+                    task={task}
+                    onDelete={onDeleteTask}
+                    />
                 ))}
             </div>
         </div>
