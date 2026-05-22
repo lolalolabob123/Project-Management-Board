@@ -7,11 +7,11 @@ type TaskModalProps = {
 };
 
 export default function TaskModal({ isOpen, onClose, onCreateTask }: TaskModalProps) {
-  if (!isOpen) return null;
-
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [priority, setPriority] = useState("low")
+
+  if (!isOpen) return null;
 
   function handleCreateTask() {
 

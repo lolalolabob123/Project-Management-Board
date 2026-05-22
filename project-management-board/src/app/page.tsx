@@ -6,6 +6,7 @@ import Column from "@/components/board/Column";
 import { mockBoard } from "@/lib/mockBoard";
 import { useState } from "react";
 import TaskModal from "@/components/ui/TaskModal";
+import {DragDropContext} from "@hello-pangea/dnd"
 
 export default function Home() {
   const [board, setBoard] = useState(mockBoard);
@@ -43,6 +44,46 @@ export default function Home() {
     })
   }
 
+  function handleDragEnd(result: any) {
+    const {source, destination} = result
+
+    if (!destination) return
+
+    const sourceColumnId = source.droppableId
+    const destColumnId = destination.droppableId
+
+    if (sourceColumnId === destColumnId && source.index === destination.index) {
+      return
+    }
+
+    const sourceColumn = board.columns.find(c => c.id === sourceColumnId)
+    const destColumn = board.columns.find(c => c.id === destColumnId)
+
+    if (!sourceColumn || !destColumn) return
+
+    const sourceTasks = [...sourceColumn.tasks]
+    const destTasks = [...destColumn.tasks]
+
+    const [movedTask] = sourceTasks.splice(source.index, 1)
+
+    if (sourceColumnId === destColumnId) {
+      sourceTasks.splice(destination.index, 0, movedTask)
+    } else {
+      destTasks.splice(destination.index, 0, movedTask)
+    }
+
+    const updatedColumns = board.columns.map(column => {
+      if (column.id === sourceColumnId) {
+        return {...column, tasks: sourceTasks}
+      }
+      if (column.id === destColumnId) {
+        return {...column, tasks: destTasks}
+      }
+      return column
+    })
+    setBoard({...board, columns: updatedColumns})
+  }
+
   return (
     <main className="h-screen flex flex-col bg-gray-50">
       <Navbar />
@@ -56,6 +97,7 @@ export default function Home() {
           >
             + Add Task
           </button>
+          <DragDropContext onDragEnd={handleDragEnd}>
           <div className="flex gap-6 min-h-full items-start w-max">
           {board.columns.map((column) => (
             <Column
@@ -66,6 +108,7 @@ export default function Home() {
             />
           ))}
           </div>
+          </DragDropContext>
 
           <TaskModal
             isOpen={isModalOpen}
