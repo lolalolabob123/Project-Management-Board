@@ -2,86 +2,141 @@
 
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
-import Column from "@/components/board/Column";
+import ColumnComponent from "@/components/board/Column";
+import type { Board } from "@/types/board";
 import { mockBoard } from "@/lib/mockBoard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TaskModal from "@/components/ui/TaskModal";
-import {DragDropContext} from "@hello-pangea/dnd"
+import { DragDropContext } from "@hello-pangea/dnd";
+import ClientOnly from "@/components/ClientOnly";
 
 export default function Home() {
-  const [board, setBoard] = useState(mockBoard);
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [board, setBoard] = useState<Board>(() => {
+    if (typeof window === "undefined") return mockBoard;
+
+    const saved = localStorage.getItem("board");
+    return saved ? JSON.parse(saved) : mockBoard;
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<any | null>(null)
+
+  useEffect(() => {
+    localStorage.setItem("board", JSON.stringify(board));
+  }, [board]);
 
   function handleCreateTask(task: any) {
-    const updatedColumns = board.columns.map((column) => {
-      if (column.id === "todo") {
-        return {
-          ...column,
-          tasks: [...column.tasks, task],
+    setBoard((prev) => {
+      const updatedColumns = prev.columns.map((column) => {
+        if (column.id === "todo") {
+          return {
+            ...column,
+            tasks: [...column.tasks, task],
+          };
         }
-      }
+        return column;
+      });
 
-      return column
-    })
-    setBoard({
-      ...board,
-      columns: updatedColumns,
-    })
+      return {
+        ...prev,
+        columns: updatedColumns,
+      };
+    });
   }
 
   function handleDeleteTask(taskId: string) {
-    const updatedColumns = board.columns.map((column) => {
-      return {
+    setBoard((prev) => {
+      const updatedColumns = prev.columns.map((column) => ({
         ...column,
-        tasks: column.tasks.filter(
-          (task) => task.id !== taskId
-        ),
-      }
-    })
-    setBoard({
-      ...board,
-      columns: updatedColumns,
-    })
+        tasks: column.tasks.filter((task) => task.id !== taskId),
+      }));
+
+      return {
+        ...prev,
+        columns: updatedColumns,
+      };
+    });
   }
 
   function handleDragEnd(result: any) {
-    const {source, destination} = result
+    const { source, destination } = result;
 
-    if (!destination) return
+    if (!destination) return;
 
-    const sourceColumnId = source.droppableId
-    const destColumnId = destination.droppableId
+    setBoard((prev) => {
+      const columns = [...prev.columns];
 
-    if (sourceColumnId === destColumnId && source.index === destination.index) {
-      return
-    }
+      const sourceColIndex = columns.findIndex(
+        (col) => col.id === source.droppableId
+      );
 
-    const sourceColumn = board.columns.find(c => c.id === sourceColumnId)
-    const destColumn = board.columns.find(c => c.id === destColumnId)
+      const destColIndex = columns.findIndex(
+        (col) => col.id === destination.droppableId
+      );
 
-    if (!sourceColumn || !destColumn) return
+      if (sourceColIndex === -1 || destColIndex === -1) return prev;
 
-    const sourceTasks = [...sourceColumn.tasks]
-    const destTasks = [...destColumn.tasks]
+      const sourceColumn = columns[sourceColIndex];
+      const destColumn = columns[destColIndex];
 
-    const [movedTask] = sourceTasks.splice(source.index, 1)
+      const sourceTasks = Array.from(sourceColumn.tasks);
+      const destTasks = Array.from(destColumn.tasks);
 
-    if (sourceColumnId === destColumnId) {
-      sourceTasks.splice(destination.index, 0, movedTask)
-    } else {
-      destTasks.splice(destination.index, 0, movedTask)
-    }
+      const [movedTask] = sourceTasks.splice(source.index, 1);
 
-    const updatedColumns = board.columns.map(column => {
-      if (column.id === sourceColumnId) {
-        return {...column, tasks: sourceTasks}
+      const newColumns = [...columns];
+
+      // SAME COLUMN (reorder)
+      if (sourceColIndex === destColIndex) {
+        sourceTasks.splice(destination.index, 0, movedTask);
+
+        newColumns[sourceColIndex] = {
+          ...sourceColumn,
+          tasks: sourceTasks,
+        };
+
+        return {
+          ...prev,
+          columns: newColumns,
+        };
       }
-      if (column.id === destColumnId) {
-        return {...column, tasks: destTasks}
+
+      // DIFFERENT COLUMN (move)
+      destTasks.splice(destination.index, 0, movedTask);
+
+      newColumns[sourceColIndex] = {
+        ...sourceColumn,
+        tasks: sourceTasks,
+      };
+
+      newColumns[destColIndex] = {
+        ...destColumn,
+        tasks: destTasks,
+      };
+
+      return {
+        ...prev,
+        columns: newColumns,
+      };
+    });
+  }
+
+  function handleEditTask(updatedTask: any) {
+    setBoard((prev) => {
+      const updatedColumns = prev.columns.map((column) => ({
+        ...column,
+        tasks: column.tasks.map((task) =>
+        task.id === updatedTask.id ? updatedTask : task
+      ),
+      }))
+
+      return {
+        ...prev,
+        columns: updatedColumns,
       }
-      return column
     })
-    setBoard({...board, columns: updatedColumns})
+
+    setEditingTask(null)
   }
 
   return (
@@ -92,31 +147,42 @@ export default function Home() {
         <Sidebar />
 
         <div className="flex-1 p-6 overflow-x-auto">
-          <button onClick={() => setIsModalOpen(true)}
+          <button
+            onClick={() => setIsModalOpen(true)}
             className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
           >
             + Add Task
           </button>
+
+<ClientOnly>
           <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="flex gap-6 min-h-full items-start w-max">
-          {board.columns.map((column) => (
-            <Column
-              key={column.id}
-              title={column.title}
-              tasks={column.tasks}
-              onDeleteTask={handleDeleteTask}
-            />
-          ))}
-          </div>
-          </DragDropContext>
+            <div className="flex gap-6 min-h-full items-start w-max">
+              {board.columns.map((column) => (
+                <ColumnComponent
+                  key={column.id}
+                  id={column.id}
+                  title={column.title}
+                  tasks={column.tasks}
+                  onDeleteTask={handleDeleteTask}
+                  onEditTask={(task) => setEditingTask(task)}
+                />
+              ))}
+            </div>
+            </DragDropContext>
+          </ClientOnly>
 
           <TaskModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
+            isOpen={isModalOpen || !!editingTask}
+            onClose={() => {
+              setIsModalOpen(false)
+              setEditingTask(null)
+            }}
             onCreateTask={handleCreateTask}
+            onEditTask={handleEditTask}
+            initialData={editingTask}
           />
         </div>
       </div>
     </main>
-  )
+  );
 }

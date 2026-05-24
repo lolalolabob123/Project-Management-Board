@@ -5,12 +5,14 @@ interface TaskCardProps {
   task: Task;
   onDelete: (taskId: string) => void;
   index: number;
+  onEdit: () => void
 }
 
 export default function TaskCard({
   task,
   onDelete,
   index,
+  onEdit,
 }: TaskCardProps) {
 
   let priorityStyles = "";
@@ -30,7 +32,7 @@ export default function TaskCard({
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition"
+          className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition cursor-grab active:cursor-grabbing"
         >
 
           <h3 className="font-medium text-gray-900">
@@ -47,12 +49,20 @@ export default function TaskCard({
             {task.priority}
           </span>
 
-          <button
-            onClick={() => onDelete(task.id)}
-            className="mt-4 text-sm text-red-600 hover:text-red-800 cursor-pointer"
-          >
-            Delete
-          </button>
+          <div className="flex gap-3 mt-3">
+            <button
+              onClick={onEdit}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => onDelete(task.id)}
+              className="text-sm text-red-600 hover:text-red-800"
+            >
+              Delete
+            </button>
+          </div>
 
         </div>
       )}
