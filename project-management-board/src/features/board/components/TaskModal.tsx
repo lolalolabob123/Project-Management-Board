@@ -77,7 +77,7 @@ export default function TaskModal({
             className="w-full border p-2 rounded"
             value={priority}
             onChange={(e) =>
-              setPriority(e.target.value as any)
+              setPriority(e.target.value as "low" | "medium" | "high")
             }
           >
             <option value="low">Low</option>
