@@ -1,6 +1,6 @@
 import TaskCard from "./TaskCard";
 import { Droppable } from "@hello-pangea/dnd";
-import { Column as ColumnType, Task } from "../types";
+import { Column as ColumnType, Task } from "../../board/types/index";
 
 export default function Column({
     column,
