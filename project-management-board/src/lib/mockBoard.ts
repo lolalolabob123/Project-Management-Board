@@ -1,50 +1,34 @@
-import { Board } from "@/types/board";
+import { Board } from "../features/board/types";
 
 export const mockBoard: Board = {
-    id: "board-1",
-    name: "My First Board",
-    columns: [
+  columns: [
+    {
+      id: "todo",
+      title: "Todo",
+      tasks: [
         {
-            id: "todo",
-            title: "Todo",
-            tasks: [
-                {
-                    id: "1",
-                    title: "Build navbar",
-                    description: "Create top navigation",
-                    priority: "high",
-                },
-                {
-                    id: "2",
-                    title: "Setup Layout",
-                    description: "Build app shell",
-                    priority: "medium",
-                },
-            ],
+          id: "1",
+          title: "Setup project",
+          description: "Initialize Next.js app",
+          priority: "high",
         },
         {
-            id: "doing",
-            title: "Doing",
-            tasks: [
-                {
-          id: "3",
+          id: "2",
           title: "Design board UI",
-          description: "Make it look clean",
+          description: "Create columns and layout",
           priority: "medium",
         },
       ],
     },
     {
+      id: "in-progress",
+      title: "In Progress",
+      tasks: [],
+    },
+    {
       id: "done",
       title: "Done",
-      tasks: [
-        {
-          id: "4",
-          title: "Create project",
-          description: "Initial setup complete",
-          priority: "low",
-        },
-            ]
-        }
-    ]
-}
+      tasks: [],
+    },
+  ],
+};
