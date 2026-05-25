@@ -1,4 +1,4 @@
-import { Board } from "../features/board/types";
+import { Board } from "@/features/board/types";
 
 export const mockBoard: Board = {
   columns: [

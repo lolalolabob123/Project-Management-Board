@@ -1,4 +1,4 @@
-import "@/app/globals.css";
+import "./globals.css";
 import Navbar from "../../src/shared/ui/layout/Navbar";
 import Sidebar from "../../src/shared/ui/layout/Sidebar";
 
